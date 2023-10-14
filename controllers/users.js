@@ -1,21 +1,26 @@
 const UserModel = require("../models/user");
 
+const STATUS_OK = 200;
+const STATUS_CREATED = 201;
+const ERROR_VALIDATION = 400;
+const ERROR_NOT_FOUND = 404;
+const ERROR_SERVER = 500;
+
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  // console.log(userData);
   return UserModel.create({ name, about, avatar })
     .then((data) => {
-      return res.status(201).send(data);
+      return res.status(STATUS_CREATED).send(data);
     })
     .catch((err) => {
       console.log(err);
       if (err.name === "ValidationError") {
         return res
-          .status(400)
+          .status(ERROR_VALIDATION)
           .send({ message: "Переданы некорректные данные пользователя" });
       }
       return res
-        .status(500)
+        .status(ERROR_SERVER)
         .send({ message: "Упс! Произошла ошибка на стороне сервера" });
     });
 };
@@ -23,12 +28,12 @@ const createUser = (req, res) => {
 const getUsers = (req, res) => {
   UserModel.find()
     .then((users) => {
-      return res.status(200).send(users);
+      return res.status(STATUS_OK).send(users);
     })
     .catch((err) => {
       console.log(err);
       return res
-        .status(500)
+        .status(ERROR_SERVER)
         .send({ message: "Упс! Произошла ошибка на стороне сервера" });
     });
 };
@@ -39,17 +44,21 @@ const getUserById = (req, res) => {
   UserModel.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "Пользователь не найден" });
+        return res
+          .status(ERROR_NOT_FOUND)
+          .send({ message: "Пользователь не найден" });
       }
-      return res.status(200).send(user);
+      return res.status(STATUS_OK).send(user);
     })
     .catch((err) => {
       console.log(err);
       if (err.name === "CastError") {
-        return res.status(400).send({ message: "Передан не валидный id" });
+        return res
+          .status(ERROR_VALIDATION)
+          .send({ message: "Передан невалидный id" });
       }
       return res
-        .status(500)
+        .status(ERROR_SERVER)
         .send({ message: "Упс! Произошла ошибка на стороне сервера" });
     });
 };
@@ -68,20 +77,20 @@ const updateUser = (req, res) => {
     .then((user) => {
       if (!user) {
         return res
-          .status(404)
+          .status(ERROR_NOT_FOUND)
           .send({ message: "Пользователь c указанным id не найден" });
       }
-      return res.status(200).send(user);
+      return res.status(STATUS_OK).send(user);
     })
     .catch((err) => {
       console.log(err);
       if (err.name === "ValidationError") {
-        return res.status(400).send({
+        return res.status(ERROR_VALIDATION).send({
           message: "Переданы некорректные данные при обновлении профиля",
         });
       }
       return res
-        .status(500)
+        .status(ERROR_SERVER)
         .send({ message: "Упс! Произошла ошибка на стороне сервера" });
     });
 };
@@ -100,21 +109,21 @@ const updateUserAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         return res
-          .status(404)
+          .status(ERROR_NOT_FOUND)
           .send({ message: "Пользователь c указанным id не найден" });
       }
-      return res.status(200).send(user);
+      return res.status(STATUS_OK).send(user);
     })
     .catch((err) => {
       console.log(err);
       if (err.name === "ValidationError") {
-        return res.status(400).send({
+        return res.status(ERROR_VALIDATION).send({
           message:
             "Переданы некорректные данные при обновлении аватара профиля",
         });
       }
       return res
-        .status(500)
+        .status(ERROR_SERVER)
         .send({ message: "Упс! Произошла ошибка на стороне сервера" });
     });
 };

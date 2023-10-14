@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const appRouter = require("./routes/index");
 
+const ERROR_NOT_FOUND = 404;
+
 mongoose
   .connect("mongodb://127.0.0.1:27017/mestodb", {
     useNewUrlParser: true,
@@ -22,9 +24,14 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use(express.static("public"));
 
 app.use(appRouter);
+
+app.use("/*", (req, res, next) => {
+  res.status(ERROR_NOT_FOUND).send({ message: "Страница не найдена" });
+
+  next();
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
