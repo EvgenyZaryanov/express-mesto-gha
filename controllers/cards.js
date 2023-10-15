@@ -46,7 +46,7 @@ const deleteCard = (req, res) => {
       return res.status(STATUS_OK).send(card);
     })
     .catch((err) => {
-      if (err.name === "ValidationError" || err.name === "CastError") {
+      if (err.name === "CastError") {
         return res.status(ERROR_VALIDATION).send({
           message: "Переданы некорректные данные для обновления профиля",
         });
@@ -73,7 +73,7 @@ const likeCard = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      if (err.name === "ValidationError" || err.name === "CastError") {
+      if (err.name === "CastError") {
         return res.status(ERROR_VALIDATION).send({
           message: "Переданы некорректные данные для постановки лайка",
         });
@@ -101,7 +101,7 @@ const dislikeCard = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      if (err.name === "ValidationError" || err.name === "CastError") {
+      if (err.name === "CastError") {
         return res
           .status(ERROR_VALIDATION)
           .send({ message: "Переданы некорректные данные для удаления лайка" });
