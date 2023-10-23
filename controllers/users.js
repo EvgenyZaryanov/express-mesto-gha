@@ -1,29 +1,8 @@
 const UserModel = require("../models/user");
-
-const STATUS_OK = 200;
-const STATUS_CREATED = 201;
-const ERROR_VALIDATION = 400;
-const ERROR_NOT_FOUND = 404;
-const ERROR_SERVER = 500;
-
-const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  return UserModel.create({ name, about, avatar })
-    .then((data) => {
-      return res.status(STATUS_CREATED).send(data);
-    })
-    .catch((err) => {
-      console.log(err);
-      if (err.name === "ValidationError") {
-        return res
-          .status(ERROR_VALIDATION)
-          .send({ message: "Переданы некорректные данные пользователя" });
-      }
-      return res
-        .status(ERROR_SERVER)
-        .send({ message: "Упс! Произошла ошибка на стороне сервера" });
-    });
-};
+const BadRequestError = require("../errors/BadRequestError");
+const NotFoundError = require("../errors/NotFoundError");
+const InternalServerError = require("../errors/InternalServerError");
+const STATUS_OK = require("../utils/constants");
 
 const getUsers = (req, res) => {
   UserModel.find()
@@ -33,7 +12,7 @@ const getUsers = (req, res) => {
     .catch((err) => {
       console.log(err);
       return res
-        .status(ERROR_SERVER)
+        .status(InternalServerError)
         .send({ message: "Упс! Произошла ошибка на стороне сервера" });
     });
 };
@@ -45,7 +24,7 @@ const getUserById = (req, res) => {
     .then((user) => {
       if (!user) {
         return res
-          .status(ERROR_NOT_FOUND)
+          .status(NotFoundError)
           .send({ message: "Пользователь не найден" });
       }
       return res.status(STATUS_OK).send(user);
@@ -54,11 +33,11 @@ const getUserById = (req, res) => {
       console.log(err);
       if (err.name === "CastError") {
         return res
-          .status(ERROR_VALIDATION)
+          .status(BadRequestError)
           .send({ message: "Передан невалидный id" });
       }
       return res
-        .status(ERROR_SERVER)
+        .status(InternalServerError)
         .send({ message: "Упс! Произошла ошибка на стороне сервера" });
     });
 };
@@ -77,7 +56,7 @@ const updateUser = (req, res) => {
     .then((user) => {
       if (!user) {
         return res
-          .status(ERROR_NOT_FOUND)
+          .status(NotFoundError)
           .send({ message: "Пользователь c указанным id не найден" });
       }
       return res.status(STATUS_OK).send(user);
@@ -85,12 +64,12 @@ const updateUser = (req, res) => {
     .catch((err) => {
       console.log(err);
       if (err.name === "ValidationError") {
-        return res.status(ERROR_VALIDATION).send({
+        return res.status(BadRequestError).send({
           message: "Переданы некорректные данные при обновлении профиля",
         });
       }
       return res
-        .status(ERROR_SERVER)
+        .status(InternalServerError)
         .send({ message: "Упс! Произошла ошибка на стороне сервера" });
     });
 };
@@ -109,7 +88,7 @@ const updateUserAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         return res
-          .status(ERROR_NOT_FOUND)
+          .status(NotFoundError)
           .send({ message: "Пользователь c указанным id не найден" });
       }
       return res.status(STATUS_OK).send(user);
@@ -117,21 +96,38 @@ const updateUserAvatar = (req, res) => {
     .catch((err) => {
       console.log(err);
       if (err.name === "ValidationError") {
-        return res.status(ERROR_VALIDATION).send({
+        return res.status(BadRequestError).send({
           message:
             "Переданы некорректные данные при обновлении аватара профиля",
         });
       }
       return res
-        .status(ERROR_SERVER)
+        .status(InternalServerError)
         .send({ message: "Упс! Произошла ошибка на стороне сервера" });
     });
 };
 
+const getCurrentUser = (req, res, next) => {
+  UserModel.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError("Пользователь не найден");
+      }
+      res.status(STATUS_OK).send(user);
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(BadRequestError("Переданы некорректные данные"));
+      } else if (err.message === "NotFound") {
+        next(new NotFoundError("Пользователь не найден"));
+      } else next(err);
+    });
+};
+
 module.exports = {
-  createUser,
   getUsers,
   getUserById,
   updateUser,
   updateUserAvatar,
+  getCurrentUser,
 };
