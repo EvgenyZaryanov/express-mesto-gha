@@ -1,9 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
+const { errors } = require("celebrate");
 const appRouter = require("./routes/index");
-const { authMiddleware } = require("./middlewares/authMiddleware");
-const { createUser, login } = require("./controllers/auth");
+const error_handler = require("./middlewares/error_handler");
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/mestodb", {
@@ -16,14 +17,13 @@ mongoose
 const app = express();
 const PORT = 3000;
 
+app.use(helmet());
+app.use(cookieParser());
 app.use(express.json());
 
-app.post("/signup", createUser);
-app.post("/signin", login);
-
-app.use(authMiddleware);
 app.use(appRouter);
-app.use(helmet());
+app.use(errors());
+app.use(error_handler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
