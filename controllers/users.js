@@ -102,7 +102,7 @@ const getCurrentUser = (req, res, next) => {
 
 const updateUserData = (req, res, next, updateOptions) => {
   const { _id: userId } = req.user;
-  User.findByIdAndUpdate(userId, updateOptions, {
+  UserModel.findByIdAndUpdate(userId, updateOptions, {
     new: true,
     runValidators: true,
   })
