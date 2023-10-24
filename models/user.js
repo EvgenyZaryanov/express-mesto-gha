@@ -1,10 +1,32 @@
+// Импорт пакетов
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
+
+//Импорт валидаторов
+const isEmail = require("validator/lib/isEmail");
+const isUrl = require("validator/lib/isURL");
+
+// Импорт классов ошибок
 const UnauthorizedError = require("../errors/UnauthorizedError");
 
 const userSchema = new mongoose.Schema(
   {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      validate: {
+        validator: (email) => isEmail(email),
+        message: "Некорректный адрес эл.почты",
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 8,
+      select: false,
+    },
     name: {
       type: String,
       minlength: 2,
@@ -19,29 +41,24 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
-      default:
-        "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
       validate: {
-        validator: (url) => validator.isURL(url),
+        validator: (avatar) =>
+          isUrl(avatar, {
+            protocols: ["http", "https"],
+            require_protocol: true,
+          }),
         message: "Некорректный адрес URL",
       },
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      validate: {
-        validator: (email) => validator.isEmail(email),
-        message: "Некорректный адрес эл.почты",
-      },
-    },
-    password: {
-      type: String,
-      required: true,
-      select: false,
+      default:
+        "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
     },
   },
-  { versionKey: false }
+  // делаем, чтобы пароль не отправлялся при регистрации и отключаем поле с версиями ("__v")
+  {
+    toJSON: { useProjection: true },
+    toObject: { useProjection: true },
+    versionKey: false,
+  }
 );
 
 userSchema.statics.findUserByCredentials = function (email, password) {
