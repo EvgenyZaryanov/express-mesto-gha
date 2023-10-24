@@ -6,7 +6,7 @@ const NotFoundError = require("../errors/NotFoundError");
 const BadRequestError = require("../errors/BadRequestError");
 const ForbiddenError = require("../errors/ForbiddenError");
 
-const { STATUS_CREATED } = require("../utils/constants");
+const { CREATED_201 } = require("../utils/constants");
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -14,7 +14,7 @@ const createCard = (req, res, next) => {
 
   CardModel.create({ name, link, owner: userId })
     .then((card) => card.populate("owner"))
-    .then((card) => res.status(STATUS_CREATED).send(card))
+    .then((card) => res.status(CREATED_201).send(card))
     .catch((err) => {
       if (err instanceof ValidationError) {
         const errorMessage = Object.values(err.errors)

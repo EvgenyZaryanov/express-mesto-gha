@@ -9,7 +9,7 @@ const NotFoundError = require("../errors/NotFoundError");
 const BadRequestError = require("../errors/BadRequestError");
 const ConflictError = require("../errors/ConflictError");
 
-const { CREATED_201, OK_200 } = require("../utils/constants");
+const { CREATED_201 } = require("../utils/constants");
 const { JWT_SECRET } = require("../utils/config");
 
 const createUser = (req, res, next) => {
@@ -69,9 +69,7 @@ const logout = (req, res) => {
 
 const getUsers = (req, res, next) => {
   UserModel.find({})
-    .then((users) => {
-      return res.status(OK_200).send(users);
-    })
+    .then((users) => res.send(users))
     .catch(next);
 };
 
