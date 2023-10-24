@@ -6,7 +6,7 @@ const auth = require("../middlewares/auth");
 
 const NotFoundError = require("../errors/NotFoundError");
 
-const { createUser, login, logout } = require("../controllers/users");
+const { createUser, login } = require("../controllers/users");
 const {
   createUserValidator,
   loginValidator,
@@ -19,7 +19,6 @@ router.post("/signin", loginValidator, login); //роутер для автор�
 // роуты, которые требуют авторизацию (users и cards)
 router.use("/users", auth, usersRouter); // роутеры для пользователей
 router.use("/cards", auth, cardsRouter); // роутеры для карточек
-router.get("/signout", auth, logout); // роутер для выхода из системы
 
 // роут для запросов по несуществующим URL
 router.use("*", auth, (req, res, next) => {
