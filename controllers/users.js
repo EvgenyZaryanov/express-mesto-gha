@@ -49,12 +49,22 @@ const login = (req, res, next) => {
 
   UserModel.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, "some-secret-key", {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.send({ token });
+      res
+        .cookie("jwt", token, {
+          maxAge: 3600000,
+          httpOnly: true,
+          sameSite: true,
+        })
+        .send({ token });
     })
     .catch(next);
+};
+
+const logout = (req, res) => {
+  res.clearCookie("jwt").send({ message: "Вы вышли из системы" });
 };
 
 const getUsers = (req, res, next) => {
@@ -131,6 +141,7 @@ const updateUserAvatar = (req, res, next) => {
 module.exports = {
   createUser,
   login,
+  logout,
   getUsers,
   getUserById,
   getCurrentUser,

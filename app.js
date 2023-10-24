@@ -4,6 +4,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 
+const cookieParser = require("cookie-parser");
 const { errors } = require("celebrate");
 const helmet = require("helmet");
 const errorHandler = require("./middlewares/errorHandler");
@@ -30,6 +31,7 @@ app.use(helmet());
 //парсинг
 app.use(express.json()); //сборка JSON-формата
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); //подключение парсера кук
 
 //миддлвэр-логгер запросов
 app.use(requestLogger);
