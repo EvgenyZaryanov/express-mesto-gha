@@ -57,7 +57,7 @@ const deleteCardById = (req, res, next) => {
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   CardModel.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -67,18 +67,18 @@ const likeCard = (req, res) => {
       if (!card) {
         throw new NotFoundError("Такой карточки не существует");
       }
-      res.send(card);
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err instanceof CastError) {
         next(new BadRequestError("Некорректный id карточки"));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   CardModel.findByIdAndUpdate(
     req.params.cardId,
 
@@ -89,13 +89,13 @@ const dislikeCard = (req, res) => {
       if (!card) {
         throw new NotFoundError("Такой карточки не существует");
       }
-      res.send(card);
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err instanceof CastError) {
         next(new BadRequestError("Некорректный id карточки"));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
