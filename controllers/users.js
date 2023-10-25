@@ -1,35 +1,35 @@
-const UserModel = require("../models/user");
-
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-
 const { CastError, ValidationError } = require("mongoose").Error;
+const UserModel = require("../models/user");
+
+const { JWT_SECRET } = require("../utils/config");
+const { CREATED_201 } = require("../utils/constants");
 
 const NotFoundError = require("../errors/NotFoundError");
 const BadRequestError = require("../errors/BadRequestError");
 const ConflictError = require("../errors/ConflictError");
 
-const { CREATED_201 } = require("../utils/constants");
-const { JWT_SECRET } = require("../utils/config");
+const NotError = 200;
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) =>
-      UserModel.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hash,
-      })
-    )
+    .then((hash) => UserModel.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.status(CREATED_201).send({ data: user }))
     .catch((err) => {
       if (err.code === 11000) {
         next(
-          new ConflictError("Пользователь с таким email уже зарегистрирован")
+          new ConflictError("Пользователь с таким email уже зарегистрирован"),
         );
         return;
       }
@@ -101,14 +101,13 @@ const getCurrentUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof CastError) {
-        next(new BadRequestError("Некорректный id пользователя"));
-      } else {
-        return next(err);
+        return next(new BadRequestError("Некорректный id пользователя"));
       }
+      return next(err);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const owner = req.user._id;
 
   UserModel.findByIdAndUpdate(
@@ -117,7 +116,7 @@ const updateUser = (req, res) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .then((user) => {
       if (!user) {
@@ -134,7 +133,7 @@ const updateUser = (req, res) => {
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const owner = req.user._id;
 
   UserModel.findByIdAndUpdate(
@@ -143,7 +142,7 @@ const updateUserAvatar = (req, res) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .then((user) => {
       if (!user) {

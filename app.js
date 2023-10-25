@@ -24,25 +24,25 @@ mongoose
     console.log("Connected to MongoDb");
   });
 
-//безопасность
+// безопасность
 app.use(limiter);
 app.use(helmet());
 
-//парсинг
-app.use(express.json()); //сборка JSON-формата
+// парсинг
+app.use(express.json()); // сборка JSON-формата
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); //подключение парсера кук
+app.use(cookieParser()); // подключение парсера кук
 
-//миддлвэр-логгер запросов
+// миддлвэр-логгер запросов
 app.use(requestLogger);
 
-//роутер
+// роутер
 app.use(appRouter);
 
-//обработка ошибок
-app.use(errorLogger); //логгер ошибок
-app.use(errors()); //обработчик ошибок celebrate
-app.use(errorHandler); //централизолванная обработка ошибок
+// обработка ошибок
+app.use(errorLogger); // логгер ошибок
+app.use(errors()); // обработчик ошибок celebrate
+app.use(errorHandler); // централизолванная обработка ошибок
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

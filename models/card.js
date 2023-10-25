@@ -13,8 +13,7 @@ const cardSchema = new mongoose.Schema(
       type: String,
       required: true,
       validate: {
-        validator: (link) =>
-          isUrl(link, { protocols: ["http", "https"], require_protocol: true }),
+        validator: (link) => isUrl(link, { protocols: ["http", "https"], require_protocol: true }),
         message: "Некорректный адрес URL",
       },
     },
@@ -33,7 +32,7 @@ const cardSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { versionKey: false }
+  { versionKey: false },
 );
 
 module.exports = mongoose.model("card", cardSchema);

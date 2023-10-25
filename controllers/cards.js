@@ -1,6 +1,5 @@
-const CardModel = require("../models/card");
-
 const { CastError, ValidationError } = require("mongoose").Error;
+const CardModel = require("../models/card");
 
 const NotFoundError = require("../errors/NotFoundError");
 const BadRequestError = require("../errors/BadRequestError");
@@ -44,9 +43,7 @@ const deleteCardById = (req, res, next) => {
       if (userId !== card.owner.toString()) {
         throw new ForbiddenError("Нельзя удалить чужую карточку");
       }
-      return CardModel.findByIdAndRemove(cardId).then(() =>
-        res.send({ message: "Карточка удалена" })
-      );
+      return CardModel.findByIdAndRemove(cardId).then(() => res.send({ message: "Карточка удалена" }));
     })
     .catch((err) => {
       if (err instanceof CastError) {
@@ -61,7 +58,7 @@ const likeCard = (req, res, next) => {
   CardModel.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
@@ -71,10 +68,9 @@ const likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof CastError) {
-        next(new BadRequestError("Некорректный id карточки"));
-      } else {
-        return next(err);
+        return next(new BadRequestError("Некорректный id карточки"));
       }
+      return next(err);
     });
 };
 
@@ -83,7 +79,7 @@ const dislikeCard = (req, res, next) => {
     req.params.cardId,
 
     { $pull: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
@@ -93,10 +89,9 @@ const dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof CastError) {
-        next(new BadRequestError("Некорректный id карточки"));
-      } else {
-        return next(err);
+        return next(new BadRequestError("Некорректный id карточки"));
       }
+      return next(err);
     });
 };
 
