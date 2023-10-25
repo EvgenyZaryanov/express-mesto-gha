@@ -12,8 +12,6 @@ const ConflictError = require("../errors/ConflictError");
 const { CREATED_201 } = require("../utils/constants");
 const { JWT_SECRET } = require("../utils/config");
 
-const NotError = 200;
-
 const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt

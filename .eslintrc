@@ -25,5 +25,5 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": [""]
+  "plugins": ["eslint-plugin"]
 }
