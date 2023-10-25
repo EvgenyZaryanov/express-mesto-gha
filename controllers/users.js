@@ -100,17 +100,12 @@ const getCurrentUser = (req, res, next) => {
     .catch(next);
 };
 
-const updateUser = (req, res) => {
-  const owner = req.user._id;
-
-  UserModel.findByIdAndUpdate(
-    owner,
-    { name: req.body.name, about: req.body.about },
-    {
-      new: true,
-      runValidators: true,
-    }
-  )
+const updateUserData = (req, res, next, updateOptions) => {
+  const { _id: userId } = req.user;
+  UserModel.findByIdAndUpdate(userId, updateOptions, {
+    new: true,
+    runValidators: true,
+  })
     .then((user) => {
       if (!user) {
         throw new NotFoundError("Такого пользователя не существует");
@@ -133,37 +128,14 @@ const updateUser = (req, res) => {
     });
 };
 
-const updateUserAvatar = (req, res) => {
-  const owner = req.user._id;
+const updateUser = (req, res, next) => {
+  const updateOptions = req.body;
+  updateUserData(req, res, next, updateOptions);
+};
 
-  UserModel.findByIdAndUpdate(
-    owner,
-    { avatar: req.body.avatar },
-    {
-      new: true,
-      runValidators: true,
-    }
-  )
-  .then((user) => {
-    if (!user) {
-      throw new NotFoundError("Такого пользователя не существует");
-    }
-    res.send(user);
-  })
-  .catch((err) => {
-    if (err instanceof ValidationError) {
-      const errorMessage = Object.values(err.errors)
-        .map((error) => error.message)
-        .join(", ");
-      next(new BadRequestError(`Некорректные данные: ${errorMessage}`));
-      return;
-    }
-    if (err instanceof CastError) {
-      next(new BadRequestError("Некорректный id пользователя"));
-    } else {
-      next(err);
-    }
-  });
+const updateUserAvatar = (req, res, next) => {
+  const updateOptions = req.body;
+  updateUserData(req, res, next, updateOptions);
 };
 
 module.exports = {
@@ -173,6 +145,7 @@ module.exports = {
   getUsers,
   getUserById,
   getCurrentUser,
+  updateUserData,
   updateUser,
   updateUserAvatar,
 };

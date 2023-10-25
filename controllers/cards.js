@@ -6,15 +6,15 @@ const NotFoundError = require("../errors/NotFoundError");
 const BadRequestError = require("../errors/BadRequestError");
 const ForbiddenError = require("../errors/ForbiddenError");
 
-// const { CREATED_201 } = require("../utils/constants");
+const { CREATED_201 } = require("../utils/constants");
 
 const createCard = (req, res, next) => {
-  console.log(req.user._id);
   const { name, link } = req.body;
-  const owner = req.user._id;
+  const { _id: userId } = req.user;
 
-  CardModel.create({ name, link, owner })
-    .then((card) => res.send(card))
+  CardModel.create({ name, link, owner: userId })
+    .then((card) => card.populate("owner"))
+    .then((card) => res.status(CREATED_201).send(card))
     .catch((err) => {
       if (err instanceof ValidationError) {
         const errorMessage = Object.values(err.errors)
@@ -29,6 +29,7 @@ const createCard = (req, res, next) => {
 
 const getCards = (req, res, next) => {
   CardModel.find({})
+    .populate(["owner", "likes"])
     .then((cards) => res.send(cards))
     .catch(next);
 };
@@ -61,12 +62,16 @@ const deleteCardById = (req, res, next) => {
 const changeLikeCardStatus = (req, res, next, likeOptions) => {
   const { cardId } = req.params;
 
-  return CardModel.findByIdAndUpdate(cardId, likeOptions, { new: true })
+  CardModel.findById(cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError("Такой карточки не существует");
       }
-      return card;
+      return CardModel.findByIdAndUpdate(cardId, likeOptions, { new: true })
+        .then((cardForLike) => cardForLike.populate(["owner", "likes"]))
+        .then((cardForLike) => {
+          res.send(cardForLike);
+        });
     })
     .catch((err) => {
       if (err instanceof CastError) {
