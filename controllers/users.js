@@ -12,6 +12,8 @@ const ConflictError = require("../errors/ConflictError");
 const { CREATED_201 } = require("../utils/constants");
 const { JWT_SECRET } = require("../utils/config");
 
+const NotError = 200;
+
 const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt
@@ -93,17 +95,18 @@ const getUserById = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  const userId = req.user._id;
-
-  UserModel.findById(userId)
+  const { _id } = req.user;
+  UserModel.findById(_id)
+    .orFail(() => new NotFoundError("Пользователь не найден"))
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError("Пользователь не найден");
-      }
-      res.send(user);
+      res.status(NotError).send({ data: user });
     })
     .catch((err) => {
-      next(err);
+      if (err instanceof CastError) {
+        next(new BadRequestError("Некорректный id пользователя"));
+      } else {
+        return next(err);
+      }
     });
 };
 
