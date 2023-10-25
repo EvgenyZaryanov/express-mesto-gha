@@ -13,7 +13,6 @@ const createCard = (req, res, next) => {
   const { _id: userId } = req.user;
 
   CardModel.create({ name, link, owner: userId })
-    .then((card) => card.populate("owner"))
     .then((card) => res.status(CREATED_201).send(card))
     .catch((err) => {
       if (err instanceof ValidationError) {
@@ -29,7 +28,6 @@ const createCard = (req, res, next) => {
 
 const getCards = (req, res, next) => {
   CardModel.find({})
-    .populate(["owner", "likes"])
     .then((cards) => res.send(cards))
     .catch(next);
 };
@@ -59,19 +57,17 @@ const deleteCardById = (req, res, next) => {
     });
 };
 
-const changeLikeCardStatus = (req, res, next, likeOptions) => {
-  const { cardId } = req.params;
-
-  CardModel.findById(cardId)
+const likeCard = (req, res) => {
+  CardModel.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true }
+  )
     .then((card) => {
       if (!card) {
         throw new NotFoundError("Такой карточки не существует");
       }
-      return CardModel.findByIdAndUpdate(cardId, likeOptions, { new: true })
-        .then((cardForLike) => cardForLike.populate(["owner", "likes"]))
-        .then((cardForLike) => {
-          res.send(cardForLike);
-        });
+      res.send(card);
     })
     .catch((err) => {
       if (err instanceof CastError) {
@@ -82,23 +78,32 @@ const changeLikeCardStatus = (req, res, next, likeOptions) => {
     });
 };
 
-const likeCard = (req, res, next) => {
-  const { _id: userId } = req.user;
-  const likeOptions = { $addToSet: { likes: userId } };
-  changeLikeCardStatus(req, res, next, likeOptions);
-};
+const dislikeCard = (req, res) => {
+  CardModel.findByIdAndUpdate(
+    req.params.cardId,
 
-const dislikeCard = (req, res, next) => {
-  const { _id: userId } = req.user;
-  const likeOptions = { $pull: { likes: userId } };
-  changeLikeCardStatus(req, res, next, likeOptions);
+    { $pull: { likes: req.user._id } },
+    { new: true }
+  )
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError("Такой карточки не существует");
+      }
+      res.send(card);
+    })
+    .catch((err) => {
+      if (err instanceof CastError) {
+        next(new BadRequestError("Некорректный id карточки"));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports = {
   createCard,
   getCards,
   deleteCardById,
-  changeLikeCardStatus,
   likeCard,
   dislikeCard,
 };
