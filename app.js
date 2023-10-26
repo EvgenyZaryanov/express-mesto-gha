@@ -1,19 +1,19 @@
 // Модуль dotenv для добавления переменных окружения в process.env
-require("dotenv").config();
+require('dotenv').config();
 
-const express = require("express");
-const mongoose = require("mongoose");
+const express = require('express');
+const mongoose = require('mongoose');
 
-const cookieParser = require("cookie-parser");
-const { errors } = require("celebrate");
-const helmet = require("helmet");
-const errorHandler = require("./middlewares/errorHandler");
-const limiter = require("./middlewares/limiter");
-const { requestLogger, errorLogger } = require("./middlewares/logger");
+const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
+const helmet = require('helmet');
+const errorHandler = require('./middlewares/errorHandler');
+const limiter = require('./middlewares/limiter');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const appRouter = require("./routes/index");
+const appRouter = require('./routes/index');
 
-const { PORT, DB } = require("./utils/config");
+const { PORT, DB } = require('./utils/config');
 
 const app = express();
 mongoose
@@ -21,7 +21,7 @@ mongoose
     useNewUrlParser: true,
   })
   .then(() => {
-    console.log("Connected to MongoDb");
+    console.log('Connected to MongoDb');
   });
 
 // безопасность

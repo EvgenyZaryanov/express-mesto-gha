@@ -1,11 +1,11 @@
-const { CastError, ValidationError } = require("mongoose").Error;
-const CardModel = require("../models/card");
+const { CastError, ValidationError } = require('mongoose').Error;
+const CardModel = require('../models/card');
 
-const NotFoundError = require("../errors/NotFoundError");
-const BadRequestError = require("../errors/BadRequestError");
-const ForbiddenError = require("../errors/ForbiddenError");
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
-const { CREATED_201 } = require("../utils/constants");
+const { CREATED_201 } = require('../utils/constants');
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -17,7 +17,7 @@ const createCard = (req, res, next) => {
       if (err instanceof ValidationError) {
         const errorMessage = Object.values(err.errors)
           .map((error) => error.message)
-          .join(" ");
+          .join(' ');
         next(new BadRequestError(`Некорректные данные: ${errorMessage}`));
       } else {
         next(err);
@@ -38,16 +38,16 @@ const deleteCardById = (req, res, next) => {
   CardModel.findById(cardId)
     .then((card) => {
       if (!card) {
-        throw new NotFoundError("Такой карточки не существует");
+        throw new NotFoundError('Такой карточки не существует');
       }
       if (userId !== card.owner.toString()) {
-        throw new ForbiddenError("Нельзя удалить чужую карточку");
+        throw new ForbiddenError('Нельзя удалить чужую карточку');
       }
-      return CardModel.findByIdAndRemove(cardId).then(() => res.send({ message: "Карточка удалена" }));
+      return CardModel.findByIdAndRemove(cardId).then(() => res.send({ message: 'Карточка удалена' }));
     })
     .catch((err) => {
       if (err instanceof CastError) {
-        next(new BadRequestError("Некорректный id карточки"));
+        next(new BadRequestError('Некорректный id карточки'));
       } else {
         next(err);
       }
@@ -62,13 +62,13 @@ const likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw new NotFoundError("Такой карточки не существует");
+        throw new NotFoundError('Такой карточки не существует');
       }
       res.send({ data: card });
     })
     .catch((err) => {
       if (err instanceof CastError) {
-        return next(new BadRequestError("Некорректный id карточки"));
+        return next(new BadRequestError('Некорректный id карточки'));
       }
       return next(err);
     });
@@ -83,13 +83,13 @@ const dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw new NotFoundError("Такой карточки не существует");
+        throw new NotFoundError('Такой карточки не существует');
       }
       res.send({ data: card });
     })
     .catch((err) => {
       if (err instanceof CastError) {
-        return next(new BadRequestError("Некорректный id карточки"));
+        return next(new BadRequestError('Некорректный id карточки'));
       }
       return next(err);
     });

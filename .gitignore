@@ -12,10 +12,4 @@ node_modules
 # Optional REPL history
 .DS_Store
 .idea
-.vscode
-
-# Env
-*.env
-
-# Log
-*.log
+.vscode 

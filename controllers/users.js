@@ -13,23 +13,23 @@ const ConflictError = require("../errors/ConflictError");
 const NotError = 200;
 
 const createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
+  const { name, about, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) => UserModel.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
+    .then((hash) =>
+      UserModel.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      })
+    )
     .then((user) => res.status(CREATED_201).send({ data: user }))
     .catch((err) => {
       if (err.code === 11000) {
         next(
-          new ConflictError("Пользователь с таким email уже зарегистрирован"),
+          new ConflictError("Пользователь с таким email уже зарегистрирован")
         );
         return;
       }
@@ -116,7 +116,7 @@ const updateUser = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    },
+    }
   )
     .then((user) => {
       if (!user) {
@@ -142,7 +142,7 @@ const updateUserAvatar = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    },
+    }
   )
     .then((user) => {
       if (!user) {
