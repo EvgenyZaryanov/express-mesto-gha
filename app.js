@@ -16,13 +16,9 @@ const appRouter = require('./routes/index');
 const { PORT, DB } = require('./utils/config');
 
 const app = express();
-mongoose
-  .connect(DB, {
-    useNewUrlParser: true,
-  })
-  .then(() => {
-    console.log('Connected to MongoDb');
-  });
+mongoose.connect(DB, {
+  useNewUrlParser: true,
+});
 
 // безопасность
 app.use(limiter);
@@ -44,6 +40,4 @@ app.use(errorLogger); // логгер ошибок
 app.use(errors()); // обработчик ошибок celebrate
 app.use(errorHandler); // централизолванная обработка ошибок
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+app.listen(PORT);
